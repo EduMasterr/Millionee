@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>رحلة المليون | The Million Journey</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen glass-panel active">
+            <h1 class="glow-text gold">رحلة المليون</h1>
+            <p class="subtitle">هل أنت مستعد لتحدي المعلومات؟</p>
+            
+            <!-- Hero Row: Stats + Inputs -->
+            <div class="hero-row">
+                <!-- Right: Visitors -->
+                <div class="hero-stat glass-panel">
+                    <i class="fas fa-eye gold"></i>
+                    <span class="hero-stat-value" id="home-visitors">0</span>
+                    <span class="hero-stat-label">زائر</span>
+                </div>
+
+                <!-- Center: Inputs -->
+                <div class="hero-center">
+                    <input type="text" id="player-name" class="glass-input" placeholder="اسمك إيه يا بطل؟" required>
+                    <input type="number" id="player-age" class="glass-input" placeholder="عمرك كام سنة؟" required>
+                    <label style="display: flex; align-items: center; gap: 10px; color: white; cursor: pointer; justify-content: center; font-size: 0.9rem;">
+                        <input type="checkbox" id="remember-me" style="width: 18px; height: 18px;"> تذكر بياناتي
+                    </label>
+                </div>
+
+                <!-- Left: Players -->
+                <div class="hero-stat glass-panel" style="position: relative;">
+                    <button id="plus-leaderboard-btn" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--gold); cursor: pointer; font-size: 1.2rem;">
+                        <i class="fas fa-plus-circle"></i>
+                    </button>
+                    <i class="fas fa-gamepad gold"></i>
+                    <span class="hero-stat-value" id="home-players">0</span>
+                    <span class="hero-stat-label">لاعب</span>
+                </div>
+            </div>
+
+            <button id="start-btn" class="gold-btn btn-lg">
+                <i class="fas fa-play"></i> ابدأ الرحلة
+            </button>
+            <button id="leaderboard-btn" class="gold-btn btn-lg" style="margin-top: 15px; background: transparent; border: 2px solid var(--gold); color: var(--gold);">
+                <i class="fas fa-trophy"></i> لوحة الشرف
+            </button>
+            <div class="loader" id="loading-indicator" style="display: none;">
+                جاري تحميل بنك الأسئلة... <i class="fas fa-spinner fa-spin"></i>
+            </div>
+
+            <!-- Feedback Section -->
+            <div class="feedback-area glass-panel" style="margin-top: 40px; padding: 20px; text-align: right; width: 100%; max-width: 450px;">
+                <h3 style="color: var(--gold); margin-bottom: 10px; font-size: 1.1rem;"><i class="fas fa-comment-dots"></i> مقترحاتك تهمنا</h3>
+                <p style="font-size: 0.85rem; color: #ccc; margin-bottom: 15px;">شاركنا رأيك أو أي سؤال تود إضافته للعبة:</p>
+                <textarea id="feedback-text" class="glass-input" style="width: 100%; height: 80px; resize: none; padding: 10px; margin-bottom: 10px;" placeholder="اكتب رسالتك هنا..."></textarea>
+                <button id="submit-feedback-btn" class="gold-btn" style="width: auto; padding: 8px 20px; font-size: 0.9rem;">إرسال المقترح</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <!-- Header: level and money -->
+            <header class="game-header glass-panel">
+                <div class="level-info">
+                    <span class="gold">رقم السؤال: <span id="question-number">1</span>/15</span>
+                </div>
+                <div class="prize-info">
+                    <span class="prize-amount glow-text gold" id="current-prize">0</span> <i class="fas fa-coins gold"></i>
+                </div>
+                <div class="timer" id="timer-container">
+                    <span id="time-left">30</span> <i class="fas fa-stopwatch"></i>
+                </div>
+            </header>
+
+            <div class="lifelines glass-panel">
+                <button class="lifeline-btn" id="life-vest-btn" data-tip="سترة النجاة (فرصة ثانية)"><i class="fas fa-life-ring"></i></button>
+                <button class="lifeline-btn" id="path-swap-btn" data-tip="تبديل المسار (تغيير السؤال)"><i class="fas fa-exchange-alt"></i></button>
+                <button class="lifeline-btn" id="time-freeze-btn" data-tip="تجميد الوقت"><i class="fas fa-snowflake"></i></button>
+                <button class="lifeline-btn" id="return-ticket-btn" data-tip="تذكرة العودة (سؤال سهل)"><i class="fas fa-ticket-alt"></i></button>
+                
+                <!-- ADMIN CHEAT BUTTON (HIDDEN DEFAULT) -->
+                <button class="lifeline-btn" id="admin-cheat-btn" style="display: none; border-color: var(--danger); color: var(--danger);" data-tip="كشف الإجابة (خاص للمدير)"><i class="fas fa-eye-slash"></i></button>
+            </div>
+
+            <!-- Question Container -->
+            <main class="question-area">
+                <div class="question-box glass-panel" id="question-text">
+                    جاري تحميل السؤال...
+                </div>
+                
+                <div class="options-grid">
+                    <button class="option-btn glass-btn" data-index="0">
+                        <span class="option-letter">A</span> <span class="option-text" id="opt-0">...</span>
+                    </button>
+                    <button class="option-btn glass-btn" data-index="1">
+                        <span class="option-letter">B</span> <span class="option-text" id="opt-1">...</span>
+                    </button>
+                    <button class="option-btn glass-btn" data-index="2">
+                        <span class="option-letter">C</span> <span class="option-text" id="opt-2">...</span>
+                    </button>
+                    <button class="option-btn glass-btn" data-index="3">
+                        <span class="option-letter">D</span> <span class="option-text" id="opt-3">...</span>
+                    </button>
+                </div>
+            </main>
+        </div>
+
+        <!-- Result / Overlay Screen -->
+        <div id="overlay-screen" class="screen glass-panel">
+            <h2 id="overlay-title" class="glow-text gold">نتيجة</h2>
+            <p id="overlay-message">الرسالة...</p>
+            <div id="celebration-container"></div>
+            <button id="overlay-action-btn" class="gold-btn">متابعة</button>
+        </div>
+
+        <!-- Suspense Modal -->
+        <div id="suspense-modal" class="screen glass-panel" style="z-index: 1000; justify-content: center; align-items: center; background: rgba(3, 11, 28, 0.9);">
+            <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: var(--danger); margin-bottom: 20px;"></i>
+            <h2 class="glow-text gold" style="font-size: 2.5rem; margin-bottom: 15px;">استنى عندك!</h2>
+            <p style="font-size: 1.5rem; margin-bottom: 30px; text-align: center;">إنت وصلت لمستوى عالي ومفيش مجال للغلط.. <br>متأكد من إجابتك؟ وده قرارك النهائي؟</p>
+            <div style="display: flex; gap: 20px;">
+                <button id="confirm-answer-btn" class="gold-btn" style="background: var(--success); color: white;">متأكد 100%</button>
+                <button id="cancel-answer-btn" class="gold-btn" style="background: var(--danger); color: white;">خليني أراجع نفسي</button>
+            </div>
+        </div>
+
+        <!-- Custom Alert Modal -->
+        <div id="custom-alert" class="screen glass-panel" style="z-index: 2000; justify-content: center; align-items: center; background: rgba(3, 11, 28, 0.95);">
+            <div id="custom-alert-icon-wrapper" style="margin-bottom: 20px;">
+                <i id="custom-alert-icon" class="fas fa-info-circle glow-text gold" style="font-size: 4rem;"></i>
+            </div>
+            <p id="custom-alert-message" style="font-size: 1.5rem; margin-bottom: 30px; text-align: center; color: white; line-height: 1.6;"></p>
+            <button id="custom-alert-btn" class="gold-btn" style="min-width: 150px;">حسناً</button>
+        </div>
+
+        <!-- Leaderboard Modal -->
+        <div id="leaderboard-modal" class="screen glass-panel" style="z-index: 1500; justify-content: flex-start; align-items: center; background: rgba(3, 11, 28, 0.98); overflow-y: auto; padding: 40px 20px;">
+            <button id="leaderboard-back-icon" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem;">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <i class="fas fa-crown glow-text gold" style="font-size: 3rem; margin-bottom: 10px;"></i>
+            <h2 class="glow-text gold" style="font-size: 2.5rem; margin-bottom: 5px;">أعظم 10 لاعبين</h2>
+            <p style="color: #ccc; margin-bottom: 30px;">(التخزين المحلي مؤقتاً لحين ربط الأونلاين)</p>
+            
+            <div id="leaderboard-list" style="width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px;">
+                <!-- Leaderboard records injected via JS -->
+            </div>
+            
+            <button id="close-leaderboard-btn" class="gold-btn" style="min-width: 180px;"><i class="fas fa-home"></i> العودة للرئيسية</button>
+        </div>
+    </div>
+    
+    <!-- Include JS -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="js/firebase_init.js"></script>
+    <script src="js/questions_data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

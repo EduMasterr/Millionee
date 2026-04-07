@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | محرر الأسئلة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0d1b2a;
+            --panel-bg: rgba(27, 38, 59, 0.9);
+            --gold: #f1c40f;
+            --gold-hover: #f39c12;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --text-color: #e0e1dd;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            background-image: radial-gradient(circle at center, #1b263b 0%, #0d1b2a 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 2px solid var(--gold);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--gold);
+            margin: 0;
+            text-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+        }
+
+        .login-panel {
+            background: var(--panel-bg);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            margin: 100px auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(241, 196, 15, 0.2);
+        }
+
+        .login-panel input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            background: var(--gold);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background: var(--gold-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(241, 196, 15, 0.4);
+        }
+
+        .editor-panel {
+            display: none;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            flex-grow: 1;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--gold);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .results {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .question-card {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .q-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid #555;
+            color: white;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        .save-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--panel-bg);
+            padding: 15px;
+            text-align: center;
+            border-top: 2px solid var(--gold);
+            z-index: 1000;
+        }
+
+        .download-btn {
+            background: var(--success);
+            color: white;
+        }
+        .download-btn:hover {
+            background: #27ae60;
+        }
+
+        .stats {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Login -->
+        <div id="login-view" class="login-panel">
+            <i class="fas fa-user-shield" style="font-size: 4rem; color: var(--gold); margin-bottom: 20px;"></i>
+            <h2>تسجيل الدخول للمدير</h2>
+            <input type="text" id="admin-user" placeholder="اسم المستخدم">
+            <div style="position: relative;">
+                <input type="password" id="admin-pass" placeholder="كلمة المرور" style="padding-left: 40px; margin: 10px 0;">
+                <i class="fas fa-eye" id="toggle-pass" style="position: absolute; left: 15px; top: 25px; cursor: pointer; color: #ccc;" onclick="
+                    const p = document.getElementById('admin-pass');
+                    if(p.type === 'password') { p.type = 'text'; this.className = 'fas fa-eye-slash'; }
+                    else { p.type = 'password'; this.className = 'fas fa-eye'; }
+                "></i>
+            </div>
+            <button class="btn" onclick="login()"><i class="fas fa-sign-in-alt"></i> دخول</button>
+        </div>
+
+        <!-- Editor -->
+        <div id="editor-view" style="display: none;">
+            <div class="admin-header glass-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <button onclick="window.location.href='index.html'" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem;">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <div>
+                        <h1 class="glow-text gold"><i class="fas fa-tools"></i> لوحة تحكم المدير</h1>
+                        <p style="text-align: center; color: #ccc;">إدارة الأسئلة، الإحصائيات، ورسائل اللاعبين</p>
+                    </div>
+                    <div style="width: 30px;"></div> <!-- Spacer -->
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div class="stats" style="display: flex; flex-direction: column; gap: 20px; padding: 20px; background: rgba(0,0,0,0.4); border-radius: 12px; margin-bottom: 30px;">
+                <div style="display: flex; justify-content: space-around; text-align: center;">
+                    <div>
+                        <h4 style="color: var(--gold); margin: 0;">إجمالي الزيارات</h4>
+                        <div id="total-visitors" style="font-size: 2.2rem; font-weight: 900; color: white;">0</div>
+                    </div>
+                    <div style="border-left: 1px solid rgba(255,255,255,0.1);"></div>
+                    <div>
+                        <h4 style="color: var(--gold); margin: 0;">إجمالي اللاعبين</h4>
+                        <div id="total-players" style="font-size: 2.2rem; font-weight: 900; color: white;">0</div>
+                    </div>
+                    <div style="border-left: 1px solid rgba(255,255,255,0.1);"></div>
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <button class="btn" style="margin: 0; padding: 8px 15px; font-size: 0.9rem; background: var(--danger);" onclick="resetStats()">
+                            <i class="fas fa-undo"></i> تصفير العدادات
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="btn" id="tab-questions" style="flex: 1; margin: 0; background: var(--gold);" onclick="switchTab('questions')">
+                    <i class="fas fa-question-circle"></i> إدارة الأسئلة
+                </button>
+                <button class="btn" id="tab-messages" style="flex: 1; margin: 0; background: #2c3e50; color: #fff;" onclick="switchTab('messages')">
+                    <i class="fas fa-envelope"></i> رسائل المقترحات
+                </button>
+            </div>
+
+            <!-- Questions Tab -->
+            <div id="section-questions">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="ابحث عن سؤال أو كلمة..." onkeyup="if(event.key === 'Enter') performSearch()">
+                    <button class="btn" style="margin-top: 0; padding: 10px 15px; background: var(--danger); color: white;" onclick="document.getElementById('search-input').value=''; performSearch();" title="مسح البحث">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button class="btn" style="margin-top: 0;" onclick="performSearch()"><i class="fas fa-search"></i> بحث</button>
+                </div>
+                <div id="db-stats" style="margin-bottom: 10px; font-size: 0.9rem; color: #aaa;"></div>
+                <div class="results" id="results-container">
+                    <div style="text-align: center; color: #aaa; padding: 40px;">
+                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <p>استخدم مربع البحث لإيجاد الأسئلة</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Tab -->
+            <div id="section-messages" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="color: var(--gold); margin: 0;">الرسائل والمقترحات</h3>
+                    <button class="btn" style="margin: 0; padding: 5px 15px; font-size: 0.85rem; background: var(--danger);" onclick="clearAllMessages()">
+                        <i class="fas fa-trash"></i> مسح الكل
+                    </button>
+                </div>
+                <div id="messages-container" style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Messages injected here -->
+                </div>
+            </div>
+
+            <div style="height: 100px;"></div>
+
+            <!-- Save Bar -->
+            <div class="save-bar">
+                <button class="btn download-btn" onclick="downloadUpdatedDB()"><i class="fas fa-download"></i> تحميل الأسئلة المعدلة (questions_data.js)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include actual DB object -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="js/firebase_init.js"></script>
+    <script src="js/questions_data.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
