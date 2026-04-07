@@ -1,4 +1,4 @@
-let db = null;
+// Using the 'db' variable initialized in firebase_init.js
 let allQuestions = []; // flat array of ALL questions
 let filteredQuestions = [];
 let currentPage = 1;
